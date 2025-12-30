@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة محظرة الإمام نافع - فرع لكصر</title>
+    <style>
+        :root {
+            --primary-color: #1b4d3e; /* أخضر محظري */
+            --gold: #c5a021;
+            --bg: #f9f9f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        /* تنسيق النموذج */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--gold);
+            margin-bottom: 30px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #266b57;
+        }
+
+        /* تنسيق الجدول */
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .status-rejected {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        .status-accepted {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #ff4d4d;
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="card">
+        <h1>محظرة الإمام نافع - فرع لكصر</h1>
+        <h2>استمارة مسابقة القرآن الكريم</h2>
+        
+        <div class="form-group">
+            <label>الاسم الكامل:</label>
+            <input type="text" id="studentName" placeholder="أدخل اسم المترشح">
+        </div>
+
+        <div class="form-group">
+            <label>تاريخ الميلاد:</label>
+            <input type="date" id="birthDate">
+        </div>
+
+        <div class="form-group">
+            <label>فرع المشاركة:</label>
+            <select id="quranBranch">
+                <option value="القرآن كاملاً">القرآن كاملاً</option>
+                <option value="نصف القرآن">نصف القرآن</option>
+                <option value="خمس القرآن">خمس القرآن</option>
+                <option value="عشر القرآن">عشر القرآن</option>
+            </select>
+        </div>
+
+        <button onclick="registerStudent()">تسجيل المترشح وحفظ المعلومات</button>
+    </div>
+
+    <div class="table-container">
+        <h2>قائمة المترشحين المسجلين تلقائياً</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>العمر</th>
+                    <th>الفرع</th>
+                    <th>القرار</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody id="studentsList">
+                </tbody>
+        </table>
+        <p style="text-align: center; font-size: 12px; color: gray; margin-top: 10px;">* المعلومات محفوظة تلقائياً في متصفحك الحالي.</p>
+    </div>
+</div>
+
+<script>
+    // عند تحميل الصفحة، استرجع البيانات المحفوظة
+    document.addEventListener('DOMContentLoaded', displayStudents);
+
+    function registerStudent() {
+        const name = document.getElementById('studentName').value;
+        const dobInput = document.getElementById('birthDate').value;
+        const branch = document.getElementById('quranBranch').value;
+
+        if (!name || !dobInput) {
+            alert("يرجى إكمال البيانات");
+            return;
+        }
+
+        // حساب العمر
+        const birthDate = new Date(dobInput);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        // تحديد الحالة
+        const decision = (age < 23) ? "مقبول" : "مرفوض";
+
+        const studentData = {
+            id: Date.now(),
+            name: name,
+            age: age,
+            branch: branch,
+            decision: decision
+        };
+
+        // حفظ المعلومات تلقائياً في LocalStorage
+        let students = JSON.parse(localStorage.getItem('mahdara_students')) || [];
+        students.push(studentData);
+        localStorage.setItem('mahdara_students', JSON.stringify(students));
+
+        // تحديث العرض وتفريغ الحقول
+        displayStudents();
+        document.getElementById('studentName').value = '';
+        document.getElementById('birthDate').value = '';
+    }
+
+    function displayStudents() {
+        const students = JSON.parse(localStorage.getItem('mahdara_students')) || [];
+        const list = document.getElementById('studentsList');
+        list.innerHTML = '';
+
+        students.forEach(student => {
+            const statusClass = (student.decision === "مرفوض") ? "status-rejected" : "status-accepted";
+            list.innerHTML += `
+                <tr>
+                    <td>${student.name}</td>
+                    <td>${student.age}</td>
+                    <td>${student.branch}</td>
+                    <td class="${statusClass}">${student.decision}</td>
+                    <td><button class="delete-btn" onclick="deleteStudent(${student.id})">حذف</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    function deleteStudent(id) {
+        let students = JSON.parse(localStorage.getItem('mahdara_students')) || [];
+        students = students.filter(s => s.id !== id);
+        localStorage.setItem('mahdara_students', JSON.stringify(students));
+        displayStudents();
+    }
+</script>
+
+</body>
+</html>
